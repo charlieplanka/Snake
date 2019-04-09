@@ -80,9 +80,9 @@ def draw_border(scr):
 def game_over(scr):
     time.sleep(1)
     curses.textpad.rectangle(scr, 1, 1, 5, 30)
-    drawstr(scr, 7, 2, "                ")
-    drawstr(scr, 8, 3, "G A M E  O V E R", curses.color_pair(1))
-    drawstr(scr, 7, 4, "                ")
+    drawstr(scr, 5, 2, "                    ")
+    drawstr(scr, 5, 3, "   G A M E  O V E R   ", curses.color_pair(1))
+    drawstr(scr, 5, 4, "                    ")
     scr.refresh()
     time.sleep(3)
 
