@@ -4,19 +4,19 @@ import curses.textpad
 import random
 
 
-def draw(scr, x, y, ch):
-    scr.addch(y, x, ch)
+def draw(scr, x, y, ch, style = curses.A_NORMAL):
+    scr.addch(y, x, ch, style)
 
 
-def drawstr(scr, x, y, s):
-    scr.addstr(y, x, s)
+def drawstr(scr, x, y, s, style = curses.A_NORMAL):
+    scr.addstr(y, x, s, style)
 
 
 def draw_snake(scr, chleniks):  
     for i in range(0, len(chleniks)):
       x = chleniks[i][0]
       y = chleniks[i][1]
-      draw(scr, x, y, "*")
+      draw(scr, x, y, "*", curses.color_pair(2))
 
 
 def create_mushroom(scr):
@@ -28,7 +28,7 @@ def create_mushroom(scr):
 
 
 def draw_mushroom(scr, x, y):
-    draw(scr, x, y, "T")
+    draw(scr, x, y, "T", curses.color_pair(1))
 
 
 def move(direction, x, y):
@@ -71,18 +71,18 @@ def get_action(scr, direction):
 
 def draw_border(scr):
     y, x = scr.getmaxyx()
-    scr.hline(0, 0, "#", x-1) 
-    scr.hline(y-1, 0, "#", x) 
-    scr.vline(0, 0, "#", y-1)
-    scr.vline(0, x-1, "#", y-1)
+    scr.hline(0, 0, "#", x-1, curses.color_pair(3)) 
+    scr.hline(y-1, 0, "#", x, curses.color_pair(3)) 
+    scr.vline(0, 0, "#", y-1, curses.color_pair(3))
+    scr.vline(0, x-1, "#", y-1, curses.color_pair(3))
 
 
 def game_over(scr):
     time.sleep(1)
-    curses.textpad.rectangle(scr, 1, 1, 10, 30)
-    drawstr(scr, 7, 3, "                ")
-    drawstr(scr, 7, 4, "G A M E  O V E R")
-    drawstr(scr, 7, 5, "                ")
+    curses.textpad.rectangle(scr, 1, 1, 5, 30)
+    drawstr(scr, 7, 2, "                ")
+    drawstr(scr, 8, 3, "G A M E  O V E R", curses.color_pair(1))
+    drawstr(scr, 7, 4, "                ")
     scr.refresh()
     time.sleep(3)
 
@@ -90,6 +90,12 @@ def game_over(scr):
 def main(stdscr):
     curses.halfdelay(3)
     curses.curs_set(False)
+
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, -1)
+    #curses.init_pair(2, curses.COLOR_GREEN, -1)
+    curses.init_color(10, 17, 117, 24)
+    curses.init_pair(3, curses.COLOR_BLUE, -1)
 
     height, width = stdscr.getmaxyx() 
     chleniks = [(10, 10), (9, 10), (8, 10), (7, 10), (6, 10)]
