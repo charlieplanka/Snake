@@ -87,8 +87,28 @@ def game_over(scr):
     time.sleep(3)
 
 
-def main(stdscr):
-    curses.halfdelay(3)
+def hello(scr):
+    draw_border(scr)
+    scr.refresh()
+    time.sleep(0.5)
+    drawstr(scr, 4, 2, "HELLO, FRIEND.")
+    drawstr(scr, 4, 3, "GROW YOUR OWN ANACONDA!")
+    drawstr(scr, 4, 4, "BE A MAN!")
+    scr.refresh()
+    time.sleep(1.5)
+
+    drawstr(scr, 4, 5, ".. OR A WOMAN!")
+    scr.refresh()
+
+    time.sleep(1.5)
+    drawstr(scr, 4, 7, "Use arrow keys to move anaconda.")
+    drawstr(scr, 4, 8, "Press q to quit the game.")
+    drawstr(scr, 4, 9, "Press any other key to start the game.")    
+    
+    return scr.getkey()
+    
+
+def main(stdscr):    
     curses.curs_set(False)
 
     curses.use_default_colors()
@@ -97,15 +117,21 @@ def main(stdscr):
     curses.init_color(10, 17, 117, 24)
     curses.init_pair(3, curses.COLOR_BLUE, -1)
 
+    key = hello(stdscr)
+    if key == 'q':
+      return
+
     height, width = stdscr.getmaxyx() 
     chleniks = [(10, 10), (9, 10), (8, 10), (7, 10), (6, 10)]
     draw_snake(stdscr, chleniks)
     draw_border(stdscr) 
-
+    
     mush_x, mush_y = create_mushroom(stdscr)
     draw_mushroom(stdscr, mush_x, mush_y)
     direction = "KEY_RIGHT"
-        
+
+    curses.halfdelay(3)
+
     while True:    
       action = get_action(stdscr, direction)
       if action in ["KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT"]:
