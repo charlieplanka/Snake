@@ -145,4 +145,4 @@ def main(stdscr):
       draw_mushroom(stdscr, mush_x, mush_y)       
 
 curses.wrapper(main)
-print("Серёжа котик!")
+print("Серёжа и Настя котики!")
