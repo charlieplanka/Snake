@@ -87,7 +87,13 @@ def game_over(scr):
     time.sleep(3)
 
 
-def hello(scr):
+def hello_screen(scr):
+    # forcely disable halfdelay mode
+    curses.cbreak()
+    scr.keypad(True)
+
+    scr.clear()
+    
     draw_border(scr)
     scr.refresh()
     time.sleep(0.5)
@@ -103,24 +109,17 @@ def hello(scr):
     time.sleep(1.5)
     drawstr(scr, 4, 7, "Use arrow keys to move anaconda.")
     drawstr(scr, 4, 8, "Press q to quit the game.")
-    drawstr(scr, 4, 9, "Press any other key to start the game.")    
+    drawstr(scr, 4, 9, "Press any other key to start the game.")
+    drawstr(scr, 4, 11, "You need to eat ")
+    drawstr(scr, 20, 11, "10 mushrooms ", curses.color_pair(1))
+    drawstr(scr, 33, 11, "to win the game.")
+    drawstr(scr, 4, 12, "Your anaconda is very hungry..")
     
     return scr.getkey()
     
 
-def main(stdscr):    
-    curses.curs_set(False)
-
-    curses.use_default_colors()
-    curses.init_pair(1, curses.COLOR_RED, -1)
-    #curses.init_pair(2, curses.COLOR_GREEN, -1)
-    curses.init_color(10, 17, 117, 24)
-    curses.init_pair(3, curses.COLOR_BLUE, -1)
-
-    key = hello(stdscr)
-    if key == 'q':
-      return
-
+def game_loop(stdscr):
+    stdscr.clear()
     height, width = stdscr.getmaxyx() 
     chleniks = [(10, 10), (9, 10), (8, 10), (7, 10), (6, 10)]
     draw_snake(stdscr, chleniks)
@@ -129,6 +128,7 @@ def main(stdscr):
     mush_x, mush_y = create_mushroom(stdscr)
     draw_mushroom(stdscr, mush_x, mush_y)
     direction = "KEY_RIGHT"
+    mushroom_eaten = 0
 
     curses.halfdelay(3)
 
@@ -138,16 +138,19 @@ def main(stdscr):
         direction = action
         move_snake(direction, chleniks)        
       elif action == "EXIT":
-        break
+        return "EXIT"
       elif action == "CRASH":
         x, y = chleniks[0]       
-        drawstr(stdscr, x, y, 'POPKA!')
+        drawstr(stdscr, x, y, 'BAD BOY!')
         stdscr.refresh()
         time.sleep(0.3)
       else:
-        raise('Incorrect action: {}!'.format(action))
+        raise("Incorrect action: {}!".format(action))
 
       if chleniks[0] == (mush_x, mush_y):
+        mushroom_eaten += 1
+        if mushroom_eaten == 10:
+          return "WIN"
         mush_x, mush_y = create_mushroom(stdscr)
         last_index = len(chleniks)-1
         chleniks.append(chleniks[last_index])
@@ -159,16 +162,42 @@ def main(stdscr):
         head_y == height or \
         head_y == 0:
           game_over(stdscr)
-          return
+          return "LOSS"
 
       if chleniks[0] in chleniks[1:]:
           game_over(stdscr)
-          return
+          return "LOSS"
 
       stdscr.clear() 
       draw_border(stdscr)
       draw_snake(stdscr, chleniks)
       draw_mushroom(stdscr, mush_x, mush_y)       
+
+
+def main(stdscr):    
+    curses.curs_set(False)
+
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, -1)
+    #curses.init_pair(2, curses.COLOR_GREEN, -1)
+    curses.init_color(10, 17, 117, 24)
+    curses.init_pair(3, curses.COLOR_BLUE, -1)
+
+    while True:
+      key = hello_screen(stdscr)
+      if key == 'q':
+        return
+    
+      result = game_loop(stdscr)
+      if result == "WIN":
+        # win_screen()
+        break
+      elif result == "LOSS":
+        continue
+      elif result == "EXIT":
+        break
+      else:
+        raise "Unexpected game_loop result: {}!".format(result)
 
 curses.wrapper(main)
 print("Серёжа и Настя котики!")
