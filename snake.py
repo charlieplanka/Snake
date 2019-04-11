@@ -3,6 +3,25 @@ import curses
 import curses.textpad
 import random
 
+WIN_SNAKE_DATA = [
+"                 .-'`     '.                        ",
+"              __/  __       \                       ",
+"             /  \ /  \       |    ___               ",
+"            | /`\| /`\|      | .-'  /^\/^\          ",
+"            | \(/| \(/|      |/     |) |)|          ",
+"           .-\__/ \__/       |      \_/\_/__..._    ",
+"   _...---'-.                /   _              '.  ",
+"  /,      ,             \   '|  `\                \ ",
+" | ))     ))           /`|   \    `.       /)  /) | ",
+" | `      `          .'       |     `-._         /  ",
+" \                 .'         |     ,_  `--....-'   ",
+"  `.           __.' ,         |     / /`'''`        ",
+"    `'-.____.-' /  /,         |    / /              ",
+"        `. `-.-` .'  \        /   / |               ",
+"          `-.__.'|    \      |   |  |-.             ",
+"             _.._|     |     /   |  |  `'.          ",
+]
+
 
 def draw(scr, x, y, ch, style = curses.A_NORMAL):
     scr.addch(y, x, ch, style)
@@ -44,6 +63,19 @@ def move(direction, x, y):
     return x, y
 
 
+def check_if_direction_is_allowed(key, direction):
+    if key == "KEY_DOWN" and direction == "KEY_UP":
+      return False
+    elif key == "KEY_UP" and direction == "KEY_DOWN":
+      return False
+    elif key == "KEY_LEFT" and direction == "KEY_RIGHT":
+      return False
+    elif key == "KEY_RIGHT" and direction == "KEY_LEFT":
+      return False
+    else: 
+      return True 
+    
+
 def move_snake(direction, chleniks):
     for i in range(len(chleniks)-1, 0, -1):
       x, y = chleniks[i]
@@ -79,19 +111,64 @@ def draw_border(scr):
 
 def game_over(scr):
     time.sleep(1)
-    curses.textpad.rectangle(scr, 1, 1, 5, 30)
-    drawstr(scr, 5, 2, "                    ")
-    drawstr(scr, 5, 3, "   G A M E  O V E R   ", curses.color_pair(1))
-    drawstr(scr, 5, 4, "                    ")
+    scr.clear()
+    draw_border(scr)
+
+    height, width = scr.getmaxyx() 
+    x, y = width//2, height//2
+       
+    drawstr(scr, x-8, y-5, "G A M E  O V E R", curses.color_pair(1))
     scr.refresh()
     time.sleep(3)
 
 
+def clear_keys_buffer(scr):
+    # forcely clear keys buffer by reading it out
+    scr.nodelay(True)
+    while True:
+      try:
+        scr.getkey()
+      except:
+        break
+    scr.nodelay(False)
+
+
+def win_screen(scr):
+    time.sleep(1)
+    scr.clear()
+    draw_border(scr)
+
+    height, width = scr.getmaxyx() 
+    x, y = width//2, height//2
+    drawstr(scr, x-17, y-6, "OH BOY, YOU'VE GOT A HUGE ANACONDA!", curses.color_pair(4))
+    drawstr(scr, x-15, y-4, "C O N G R A T U L A T I O N S !", curses.color_pair(4))
+
+    scr.refresh()
+    time.sleep(3)
+    win_snake_screen(scr)
+
+
+def win_snake_screen(scr):
+  scr.clear()
+  draw_border(scr)
+  for i in range(len(WIN_SNAKE_DATA)):
+    x = 1
+    y = 1 + i
+    line = WIN_SNAKE_DATA[i]
+    drawstr(scr, x, y, line)
+    scr.refresh()
+    time.sleep(0.1)
+  time.sleep(3)
+
 def hello_screen(scr):
-    # forcely disable halfdelay mode
+    # clear keys buffer to prevent game autostart 
+    # by buffered key values from previous game session 
+    clear_keys_buffer(scr)
+
+    # forcely disable halfdelay mode    
     curses.cbreak()
     scr.keypad(True)
-
+    
     scr.clear()
     
     draw_border(scr)
@@ -108,9 +185,9 @@ def hello_screen(scr):
 
     time.sleep(1.5)
     drawstr(scr, 4, 7, "Use arrow keys to move anaconda.")
-    drawstr(scr, 4, 8, "Press q to quit the game.")
+    drawstr(scr, 4, 8, "Press q to quit the game at any moment.")
     drawstr(scr, 4, 9, "Press any other key to start the game.")
-    drawstr(scr, 4, 11, "You need to eat ")
+    drawstr(scr, 4, 11, "You have to eat ")
     drawstr(scr, 20, 11, "10 mushrooms ", curses.color_pair(1))
     drawstr(scr, 33, 11, "to win the game.")
     drawstr(scr, 4, 12, "Your anaconda is very hungry..")
@@ -132,11 +209,12 @@ def game_loop(stdscr):
 
     curses.halfdelay(3)
 
-    while True:    
+    while True:
       action = get_action(stdscr, direction)
       if action in ["KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT"]:
-        direction = action
-        move_snake(direction, chleniks)        
+        if check_if_direction_is_allowed(action, direction):
+          direction = action
+          move_snake(direction, chleniks)        
       elif action == "EXIT":
         return "EXIT"
       elif action == "CRASH":
@@ -178,10 +256,12 @@ def main(stdscr):
     curses.curs_set(False)
 
     curses.use_default_colors()
-    curses.init_pair(1, curses.COLOR_RED, -1)
-    #curses.init_pair(2, curses.COLOR_GREEN, -1)
-    curses.init_color(10, 17, 117, 24)
+    curses.init_pair(1, curses.COLOR_RED, -1)    
     curses.init_pair(3, curses.COLOR_BLUE, -1)
+    curses.init_pair(4, curses.COLOR_YELLOW, -1)
+
+    # creating custom color to make anaconda looks like kolbaska
+    curses.init_color(10, 17, 117, 24)
 
     while True:
       key = hello_screen(stdscr)
@@ -190,7 +270,7 @@ def main(stdscr):
     
       result = game_loop(stdscr)
       if result == "WIN":
-        # win_screen()
+        win_screen(stdscr)
         break
       elif result == "LOSS":
         continue
