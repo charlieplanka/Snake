@@ -11,15 +11,34 @@ WIN_SNAKE_DATA = [
 "            | \(/| \(/|      |/     |) |)|          ",
 "           .-\__/ \__/       |      \_/\_/__..._    ",
 "   _...---'-.                /   _              '.  ",
-"  /,      ,             \   '|  `\                \ ",
+"  /,      ,             \   '|  `\  sergio        \ ",
 " | ))     ))           /`|   \    `.       /)  /) | ",
 " | `      `          .'       |     `-._         /  ",
-" \                 .'         |     ,_  `--....-'   ",
+" \    anastasia    .'         |     ,_  `--....-'   ",
 "  `.           __.' ,         |     / /`'''`        ",
 "    `'-.____.-' /  /,         |    / /              ",
 "        `. `-.-` .'  \        /   / |               ",
 "          `-.__.'|    \      |   |  |-.             ",
 "             _.._|     |     /   |  |  `'.          ",
+]
+
+LOSS_SNAKE_DATA = [
+"       ---_ ......._-_--.     ",
+"      (|\ /      / /| \  \    ",
+"      /  /     .'  -=-'   `.  ",
+"     /  /    .'             ) ",
+"   _/  /   .'        _.)   /  ",
+"  / o   o        _.-' /  .'   ",
+"  \          _.-'    / .'*|   ",
+"   \______.-'//    .'.' \*|   ",
+"    \|  \ | //   .'.' _ |*|   ",
+"     `   \|//  .'.'_ _ _|*|   ",
+"      .  .// .'.' | _ _ \*|   ",
+"      \`-|\_/ /    \ _ _ \*\  ",
+"       `/'\__/      \ _ _ \*\ ",
+"      /^|            \ _ _ \* ",
+"     '  `             \ _ _ \ ",
+"       W A S T E D     \_     "
 ]
 
 
@@ -120,6 +139,7 @@ def game_over(scr):
     drawstr(scr, x-8, y-5, "G A M E  O V E R", curses.color_pair(1))
     scr.refresh()
     time.sleep(3)
+    snake_screen(scr, LOSS_SNAKE_DATA, curses.color_pair(1))
 
 
 def clear_keys_buffer(scr):
@@ -145,20 +165,20 @@ def win_screen(scr):
 
     scr.refresh()
     time.sleep(3)
-    win_snake_screen(scr)
+    snake_screen(scr, WIN_SNAKE_DATA, curses.color_pair(5))
 
 
-def win_snake_screen(scr):
+def snake_screen(scr, snake_items, color):
   scr.clear()
-  draw_border(scr)
-  for i in range(len(WIN_SNAKE_DATA)):
+  for i in range(len(snake_items)):
     x = 1
     y = 1 + i
-    line = WIN_SNAKE_DATA[i]
-    drawstr(scr, x, y, line)
+    line = snake_items[i]
+    drawstr(scr, x, y, line, color)
     scr.refresh()
     time.sleep(0.1)
   time.sleep(3)
+
 
 def hello_screen(scr):
     # clear keys buffer to prevent game autostart 
@@ -188,7 +208,7 @@ def hello_screen(scr):
     drawstr(scr, 4, 8, "Press q to quit the game at any moment.")
     drawstr(scr, 4, 9, "Press any other key to start the game.")
     drawstr(scr, 4, 11, "You have to eat ")
-    drawstr(scr, 20, 11, "10 mushrooms ", curses.color_pair(1))
+    drawstr(scr, 20, 11, "15 mushrooms ", curses.color_pair(1))
     drawstr(scr, 33, 11, "to win the game.")
     drawstr(scr, 4, 12, "Your anaconda is very hungry..")
     
@@ -227,7 +247,7 @@ def game_loop(stdscr):
 
       if chleniks[0] == (mush_x, mush_y):
         mushroom_eaten += 1
-        if mushroom_eaten == 10:
+        if mushroom_eaten == 15:
           return "WIN"
         mush_x, mush_y = create_mushroom(stdscr)
         last_index = len(chleniks)-1
@@ -259,9 +279,10 @@ def main(stdscr):
     curses.init_pair(1, curses.COLOR_RED, -1)    
     curses.init_pair(3, curses.COLOR_BLUE, -1)
     curses.init_pair(4, curses.COLOR_YELLOW, -1)
+    curses.init_pair(5, curses.COLOR_CYAN, -1)
 
     # creating custom color to make anaconda looks like kolbaska
-    curses.init_color(10, 17, 117, 24)
+    #curses.init_color(10, 17, 117, 24)
 
     while True:
       key = hello_screen(stdscr)
