@@ -208,7 +208,7 @@ def hello_screen(scr):
     drawstr(scr, 4, 8, "Press q to quit the game at any moment.")
     drawstr(scr, 4, 9, "Press any other key to start the game.")
     drawstr(scr, 4, 11, "You have to eat ")
-    drawstr(scr, 20, 11, "15 mushrooms ", curses.color_pair(1))
+    drawstr(scr, 20, 11, "10 mushrooms ", curses.color_pair(1))
     drawstr(scr, 33, 11, "to win the game.")
     drawstr(scr, 4, 12, "Your anaconda is very hungry..")
     
@@ -247,7 +247,7 @@ def game_loop(stdscr):
 
       if chleniks[0] == (mush_x, mush_y):
         mushroom_eaten += 1
-        if mushroom_eaten == 15:
+        if mushroom_eaten == 10:
           return "WIN"
         mush_x, mush_y = create_mushroom(stdscr)
         last_index = len(chleniks)-1
