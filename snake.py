@@ -259,11 +259,9 @@ def game_loop(stdscr):
            head_x == 0 or \
            head_y == height or \
            head_y == 0:
-            game_over(stdscr)
             return "LOSS"
 
         if chleniks[0] in chleniks[1:]:
-            game_over(stdscr)
             return "LOSS"
 
         stdscr.clear() 
@@ -294,7 +292,7 @@ def main(stdscr):
             win_screen(stdscr)
             break
         elif result == "LOSS":
-            # здесь вызывать функцию проигрыша
+            game_over(stdscr)
             continue
         elif result == "EXIT":
             break
