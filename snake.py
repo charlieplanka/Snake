@@ -216,8 +216,8 @@ def hello_screen(scr):
 def game_loop(stdscr):
     stdscr.clear()
     height, width = stdscr.getmaxyx() 
-    chleniks = [(10, 10), (9, 10), (8, 10), (7, 10), (6, 10)]
-    draw_snake(stdscr, chleniks)
+    snake_parts = [(10, 10), (9, 10), (8, 10), (7, 10), (6, 10)]
+    draw_snake(stdscr, snake_parts)
     draw_border(stdscr)
 
     mush_x, mush_y = create_mushroom(stdscr)
@@ -234,39 +234,39 @@ def game_loop(stdscr):
             if check_if_direction_is_allowed(action, direction):
                 # разделить эти понятия (маппинг)
                 direction = action
-                move_snake(direction, chleniks)        
+                move_snake(direction, snake_parts)
         elif action == "EXIT":
             return "EXIT"
         elif action == "CRASH":
-            x, y = chleniks[0]       
+            x, y = snake_parts[0]       
             draw_str(stdscr, x, y, 'BAD BOY!')
             stdscr.refresh()
             time.sleep(0.3)
         else:
             raise("Incorrect action: {}!".format(action))
 
-        if chleniks[0] == (mush_x, mush_y):
+        if snake_parts[0] == (mush_x, mush_y):
             mushroom_eaten += 1
             if mushroom_eaten == 10:
                 return "WIN"
             mush_x, mush_y = create_mushroom(stdscr)
-            last_index = len(chleniks)-1
-            chleniks.append(chleniks[last_index])
+            last_index = len(snake_parts)-1
+            snake_parts.append(snake_parts[last_index])
 
-        head_x = chleniks[0][0]
-        head_y = chleniks[0][1]
+        head_x = snake_parts[0][0]
+        head_y = snake_parts[0][1]
         if head_x == width or \
            head_x == 0 or \
            head_y == height or \
            head_y == 0:
             return "LOSS"
 
-        if chleniks[0] in chleniks[1:]:
+        if snake_parts[0] in snake_parts[1:]:
             return "LOSS"
 
         stdscr.clear() 
         draw_border(stdscr)
-        draw_snake(stdscr, chleniks)
+        draw_snake(stdscr, snake_parts)
         draw_mushroom(stdscr, mush_x, mush_y)
 
 
