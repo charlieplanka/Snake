@@ -2,6 +2,8 @@ import time
 import curses
 import curses.textpad
 import random
+import traceback
+from point import Point
 
 WIN_SNAKE_DATA = [
     "                 .-'`     '.                        ",
@@ -52,8 +54,8 @@ def draw_str(scr, x, y, s, style=curses.A_NORMAL):
 
 def draw_snake(scr, snake_parts):
     for i in range(0, len(snake_parts)):
-        x = snake_parts[i][0]
-        y = snake_parts[i][1]
+        x = snake_parts[i].x
+        y = snake_parts[i].y
         draw_char(scr, x, y, "*", curses.color_pair(2))
 
 
@@ -67,17 +69,18 @@ def create_mushroom(scr):
 def draw_mushroom(scr, x, y):
     draw_char(scr, x, y, "T", curses.color_pair(1))
 
-
-def move(direction, x, y):
+# улучшить название
+def move(direction, old_point):
+    new_point = Point(old_point.x, old_point.y)
     if direction == "KEY_UP":
-        y -= 1
+        new_point.y -= 1
     elif direction == "KEY_DOWN":
-        y += 1
+        new_point.y += 1
     elif direction == "KEY_RIGHT":
-        x += 1
+        new_point.x += 1
     elif direction == "KEY_LEFT":
-        x -= 1
-    return x, y
+        new_point.x -= 1
+    return new_point
 
 
 def check_if_direction_is_allowed(key, direction):
@@ -95,19 +98,18 @@ def check_if_direction_is_allowed(key, direction):
 
 def move_snake(direction, snake_parts):
     for i in range(len(snake_parts)-1, 0, -1):
-        x, y = snake_parts[i]
-        x2, y2 = snake_parts[i-1]
-        x, y = x2, y2
-        snake_parts[i] = x, y
+        prev_point = snake_parts[i-1]
+        snake_parts[i] = prev_point
 
-    x, y = snake_parts[0]
-    snake_parts[0] = move(direction, x, y)  
+    head_point = snake_parts[0]
+    snake_parts[0] = move(direction, head_point)
 
 
 def get_action(scr, direction):
     try:
         key = scr.getkey()
     except:
+        traceback.print_exc()
         return direction
 
     if key in ["KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT"]:
@@ -147,6 +149,7 @@ def clear_keys_buffer(scr):
         try:
             scr.getkey()
         except:
+            traceback.print_exc()
             break
     scr.nodelay(False)
 
@@ -188,6 +191,7 @@ def hello_screen(scr):
     scr.keypad(True)
 
     scr.clear()
+    
 
     draw_border(scr)
     scr.refresh()
@@ -200,8 +204,8 @@ def hello_screen(scr):
 
     draw_str(scr, 4, 5, ".. OR A WOMAN!")
     scr.refresh()
-
     time.sleep(1.5)
+
     draw_str(scr, 4, 7, "Use arrow keys to move anaconda.")
     draw_str(scr, 4, 8, "Press q to quit the game at any moment.")
     draw_str(scr, 4, 9, "Press any other key to start the game.")
@@ -215,8 +219,14 @@ def hello_screen(scr):
 
 def game_loop(stdscr):
     stdscr.clear()
-    height, width = stdscr.getmaxyx() 
-    snake_parts = [(10, 10), (9, 10), (8, 10), (7, 10), (6, 10)]
+    height, width = stdscr.getmaxyx()
+    snake_parts = [
+        Point(10, 10),
+        Point(9, 10),
+        Point(8, 10),
+        Point(7, 10),
+        Point(6, 10),
+        ]
     draw_snake(stdscr, snake_parts)
     draw_border(stdscr)
 
@@ -238,8 +248,8 @@ def game_loop(stdscr):
         elif action == "EXIT":
             return "EXIT"
         elif action == "CRASH":
-            x, y = snake_parts[0]       
-            draw_str(stdscr, x, y, 'BAD BOY!')
+            head_point = snake_parts[0]       
+            draw_str(stdscr, head_point.x, head_point.y, 'BAD BOY!')
             stdscr.refresh()
             time.sleep(0.3)
         else:
@@ -253,8 +263,8 @@ def game_loop(stdscr):
             last_index = len(snake_parts)-1
             snake_parts.append(snake_parts[last_index])
 
-        head_x = snake_parts[0][0]
-        head_y = snake_parts[0][1]
+        head_x = snake_parts[0].x
+        head_y = snake_parts[0].y
         if head_x == width or \
            head_x == 0 or \
            head_y == height or \
@@ -262,6 +272,7 @@ def game_loop(stdscr):
             return "LOSS"
 
         if snake_parts[0] in snake_parts[1:]:
+            print("True")
             return "LOSS"
 
         stdscr.clear() 
