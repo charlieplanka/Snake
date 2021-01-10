@@ -255,7 +255,7 @@ def game_loop(stdscr):
             raise("Incorrect action: {}!".format(action))
 
         snake_head = snake_parts[0]
-        if snake_head.equals(mushroom):
+        if snake_head == mushroom:
             mushroom_eaten += 1
             if mushroom_eaten == MUSHROOMS_TO_WIN:
                 return "WIN"

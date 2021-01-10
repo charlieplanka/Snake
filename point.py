@@ -3,5 +3,8 @@ class Point():
         self.x = x
         self.y = y
 
-    def equals(self, another_point):
-        return (self.x == another_point.x) and (self.y == another_point.y)
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return (self.x == other.x) and (self.y == other.y)
