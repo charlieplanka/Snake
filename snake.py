@@ -43,6 +43,7 @@ LOSS_SNAKE_DATA = [
     "       W A S T E D     \_     "
 ]
 
+MUSHROOMS_TO_WIN = 2
 
 def draw_char(scr, x, y, ch, style=curses.A_NORMAL):
     scr.addch(y, x, ch, style)
@@ -63,7 +64,8 @@ def create_mushroom(scr):
     height, width = scr.getmaxyx()
     x = random.randint(1, width-2)
     y = random.randint(1, height-2)
-    return x, y
+    mushroom = Point(x, y)
+    return mushroom
 
 
 def draw_mushroom(scr, x, y):
@@ -109,7 +111,6 @@ def get_action(scr, direction):
     try:
         key = scr.getkey()
     except:
-        traceback.print_exc()
         return direction
 
     if key in ["KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT"]:
@@ -149,7 +150,6 @@ def clear_keys_buffer(scr):
         try:
             scr.getkey()
         except:
-            traceback.print_exc()
             break
     scr.nodelay(False)
 
@@ -191,8 +191,7 @@ def hello_screen(scr):
     scr.keypad(True)
 
     scr.clear()
-    
-
+  
     draw_border(scr)
     scr.refresh()
     time.sleep(0.5)
@@ -230,8 +229,8 @@ def game_loop(stdscr):
     draw_snake(stdscr, snake_parts)
     draw_border(stdscr)
 
-    mush_x, mush_y = create_mushroom(stdscr)
-    draw_mushroom(stdscr, mush_x, mush_y)
+    mushroom = create_mushroom(stdscr)
+    draw_mushroom(stdscr, mushroom.x, mushroom.y)
     direction = "KEY_RIGHT"
     mushroom_eaten = 0
 
@@ -255,11 +254,12 @@ def game_loop(stdscr):
         else:
             raise("Incorrect action: {}!".format(action))
 
-        if snake_parts[0] == (mush_x, mush_y):
+        snake_head = snake_parts[0]
+        if snake_head.equals(mushroom):
             mushroom_eaten += 1
-            if mushroom_eaten == 10:
+            if mushroom_eaten == MUSHROOMS_TO_WIN:
                 return "WIN"
-            mush_x, mush_y = create_mushroom(stdscr)
+            mushroom = create_mushroom(stdscr)
             last_index = len(snake_parts)-1
             snake_parts.append(snake_parts[last_index])
 
@@ -272,13 +272,12 @@ def game_loop(stdscr):
             return "LOSS"
 
         if snake_parts[0] in snake_parts[1:]:
-            print("True")
             return "LOSS"
 
         stdscr.clear() 
         draw_border(stdscr)
         draw_snake(stdscr, snake_parts)
-        draw_mushroom(stdscr, mush_x, mush_y)
+        draw_mushroom(stdscr, mushroom.x, mushroom.y)
 
 
 def main(stdscr):
