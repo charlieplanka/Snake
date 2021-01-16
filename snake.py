@@ -45,6 +45,22 @@ LOSS_SNAKE_DATA = [
 
 MUSHROOMS_TO_WIN = 2
 
+DIRECTION_UP = "UP"
+DIRECTION_DOWN = "DOWN"
+DIRECTION_RIGHT = "RIGHT"
+DIRECTION_LEFT = "LEFT"
+
+ACTION_MOVE_UP = "MOVE_UP"
+ACTION_MOVE_DOWN = "MOVE_DOWN"
+ACTION_MOVE_RIGHT = "MOVE_RIGHT"
+ACTION_MOVE_LEFT = "MOVE_LEFT"
+ACTION_NONE = "NONE"
+ACTION_CRASH = "CRASH"
+ACTION_EXIT = "EXIT"
+
+MOVES_ACTIONS = [ACTION_MOVE_UP, ACTION_MOVE_DOWN, ACTION_MOVE_RIGHT, ACTION_MOVE_LEFT]
+
+
 def draw_char(scr, x, y, ch, style=curses.A_NORMAL):
     scr.addch(y, x, ch, style)
 
@@ -71,28 +87,29 @@ def create_mushroom(scr):
 def draw_mushroom(scr, x, y):
     draw_char(scr, x, y, "T", curses.color_pair(1))
 
+
 # улучшить название
-def move(direction, old_point):
+def move_point(direction, old_point):
     new_point = Point(old_point.x, old_point.y)
-    if direction == "KEY_UP":
+    if direction == DIRECTION_UP:
         new_point.y -= 1
-    elif direction == "KEY_DOWN":
+    elif direction == DIRECTION_DOWN:
         new_point.y += 1
-    elif direction == "KEY_RIGHT":
+    elif direction == DIRECTION_RIGHT:
         new_point.x += 1
-    elif direction == "KEY_LEFT":
+    elif direction == DIRECTION_LEFT:
         new_point.x -= 1
     return new_point
 
 
-def check_if_direction_is_allowed(key, direction):
-    if key == "KEY_DOWN" and direction == "KEY_UP":
+def check_if_direction_is_allowed(action, direction):
+    if action == ACTION_MOVE_DOWN and direction == DIRECTION_UP:
         return False
-    elif key == "KEY_UP" and direction == "KEY_DOWN":
+    elif action == ACTION_MOVE_UP and direction == DIRECTION_DOWN:
         return False
-    elif key == "KEY_LEFT" and direction == "KEY_RIGHT":
+    elif action == ACTION_MOVE_LEFT and direction == DIRECTION_RIGHT:
         return False
-    elif key == "KEY_RIGHT" and direction == "KEY_LEFT":
+    elif action == ACTION_MOVE_RIGHT and direction == DIRECTION_LEFT:
         return False
     else:
         return True
@@ -104,21 +121,44 @@ def move_snake(direction, snake_parts):
         snake_parts[i] = prev_point
 
     head_point = snake_parts[0]
-    snake_parts[0] = move(direction, head_point)
+    snake_parts[0] = move_point(direction, head_point)
 
 
-def get_action(scr, direction):
+def get_action_from_key(key):
+    if key in ["KEY_UP", "KEY_A2"]:
+        return ACTION_MOVE_UP
+    elif key in ["KEY_DOWN", "KEY_C2"]:
+        return ACTION_MOVE_DOWN
+    elif key in ["KEY_RIGHT", "KEY_B3"]:
+        return ACTION_MOVE_RIGHT
+    elif key in ["KEY_LEFT", "KEY_B1"]:
+        return ACTION_MOVE_LEFT
+    elif key == "q":
+        return ACTION_EXIT
+    else:
+        return ACTION_CRASH
+
+
+def get_direction_from_action(action):
+    if action == ACTION_MOVE_UP:
+        return DIRECTION_UP
+    elif action == ACTION_MOVE_DOWN:
+        return DIRECTION_DOWN
+    elif action == ACTION_MOVE_RIGHT:
+        return DIRECTION_RIGHT
+    elif action == ACTION_MOVE_LEFT:
+        return DIRECTION_LEFT
+    else:
+        raise Exception(f"Unknown action: {action}")
+
+
+def get_action(scr):
     try:
         key = scr.getkey()
     except:
-        return direction
+        return ACTION_NONE
 
-    if key in ["KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT"]:
-        return key
-    elif key == "q":
-        return "EXIT"
-    else:
-        return "CRASH"
+    return get_action_from_key(key)
 
 
 def draw_border(scr):
@@ -231,22 +271,23 @@ def game_loop(stdscr):
 
     mushroom = create_mushroom(stdscr)
     draw_mushroom(stdscr, mushroom.x, mushroom.y)
-    direction = "KEY_RIGHT"
+    direction = DIRECTION_RIGHT
     mushroom_eaten = 0
 
     # узнать, почему 3
     curses.halfdelay(3)
 
     while True:
-        action = get_action(stdscr, direction)
-        if action in ["KEY_UP", "KEY_DOWN", "KEY_RIGHT", "KEY_LEFT"]:
+        action = get_action(stdscr)
+        if action == ACTION_NONE:
+            move_snake(direction, snake_parts)
+        elif action in MOVES_ACTIONS:
             if check_if_direction_is_allowed(action, direction):
-                # разделить эти понятия (маппинг)
-                direction = action
+                direction = get_direction_from_action(action)
                 move_snake(direction, snake_parts)
-        elif action == "EXIT":
+        elif action == ACTION_EXIT:
             return "EXIT"
-        elif action == "CRASH":
+        elif action == ACTION_CRASH:
             head_point = snake_parts[0]       
             draw_str(stdscr, head_point.x, head_point.y, 'BAD BOY!')
             stdscr.refresh()
@@ -314,3 +355,4 @@ curses.wrapper(main)
 print("Серёжа и Настя котики!")
 
 # класс Змея, который состоит из объектов класса Точка
+# написать тесты
