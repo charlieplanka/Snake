@@ -45,6 +45,7 @@ LOSS_SNAKE_DATA = [
 
 MUSHROOMS_TO_WIN = 2
 
+# добавить перечисление (класс Enum)
 DIRECTION_UP = "UP"
 DIRECTION_DOWN = "DOWN"
 DIRECTION_RIGHT = "RIGHT"
@@ -354,5 +355,5 @@ def main(stdscr):
 curses.wrapper(main)
 print("Серёжа и Настя котики!")
 
-# класс Змея, который состоит из объектов класса Точка
+# класс Змея, который издаёт звук "Ахщщщ!" (вместо BAD_BOY) и состоит из объектов класса Точка
 # написать тесты
