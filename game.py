@@ -260,12 +260,7 @@ def game_loop(stdscr):
 
             snake.points.append(snake.points[last_index])
 
-        head_x = snake.points[0].x
-        head_y = snake.points[0].y
-        if head_x == width or \
-           head_x == 0 or \
-           head_y == height or \
-           head_y == 0:
+        if snake.check_border_collision(width, height):
             return "LOSS"
 
         if snake.points[0] in snake.points[1:]:
