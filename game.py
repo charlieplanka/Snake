@@ -4,6 +4,7 @@ import curses.textpad
 import random
 from point import Point
 from snake import Snake
+from mushroom import Mushroom, create_random_mushroom_on_screen
 from utils import draw_char
 from directions import *
 
@@ -63,18 +64,6 @@ MOVES_ACTIONS = [ACTION_MOVE_UP, ACTION_MOVE_DOWN, ACTION_MOVE_RIGHT, ACTION_MOV
 
 def draw_str(scr, x, y, s, style=curses.A_NORMAL):
     scr.addstr(y, x, s, style)
-
-
-def create_mushroom(scr):
-    height, width = scr.getmaxyx()
-    x = random.randint(1, width-2)
-    y = random.randint(1, height-2)
-    mushroom = Point(x, y)
-    return mushroom
-
-
-def draw_mushroom(scr, x, y):
-    draw_char(scr, x, y, "T", curses.color_pair(1))
 
 
 def check_if_direction_is_allowed(action, direction):
@@ -235,8 +224,8 @@ def game_loop(stdscr):
     snake.draw(stdscr)
     draw_border(stdscr)
 
-    mushroom = create_mushroom(stdscr)
-    draw_mushroom(stdscr, mushroom.x, mushroom.y)
+    mushroom = create_random_mushroom_on_screen(stdscr)
+    mushroom.draw(stdscr)
     direction = DIRECTION_RIGHT
     mushroom_eaten = 0
 
@@ -262,11 +251,11 @@ def game_loop(stdscr):
             raise("Incorrect action: {}!".format(action))
 
         snake_head = snake.points[0]
-        if snake_head == mushroom:
+        if snake_head == mushroom.point:
             mushroom_eaten += 1
             if mushroom_eaten == MUSHROOMS_TO_WIN:
                 return "WIN"
-            mushroom = create_mushroom(stdscr)
+            mushroom = create_random_mushroom_on_screen(stdscr)
             last_index = len(snake.points)-1
 
             snake.points.append(snake.points[last_index])
@@ -285,7 +274,7 @@ def game_loop(stdscr):
         stdscr.clear()
         draw_border(stdscr)
         snake.draw(stdscr)
-        draw_mushroom(stdscr, mushroom.x, mushroom.y)
+        mushroom.draw(stdscr)
 
 
 def main(stdscr):
