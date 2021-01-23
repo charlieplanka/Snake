@@ -4,8 +4,7 @@ import curses.textpad
 import random
 from point import Point
 from snake import Snake
-from mushroom import Mushroom, create_random_mushroom_on_screen
-from utils import draw_char
+from mushroom import create_random_mushroom_on_screen
 from directions import *
 
 
@@ -263,7 +262,7 @@ def game_loop(stdscr):
         if snake.check_border_collision(width, height):
             return "LOSS"
 
-        if snake.points[0] in snake.points[1:]:
+        if snake.check_self_collision():
             return "LOSS"
 
         stdscr.clear()

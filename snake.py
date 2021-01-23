@@ -23,5 +23,10 @@ class Snake:
         if head.x in (0, width-1) or \
            head.y in (0, height-1):
             return True
-
         return False
+
+    def check_self_collision(self):
+        head = self.points[0]
+        tail = self.points[1:]
+        return head in tail
+
