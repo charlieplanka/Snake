@@ -1,5 +1,5 @@
 import curses
-from utils import move_point, draw_char
+from utils import draw_char
 
 
 class Snake:
@@ -12,7 +12,7 @@ class Snake:
             self.points[i] = prev_point
 
         head_point = self.points[0]
-        self.points[0] = move_point(direction, head_point)
+        self.points[0] = head_point.move(direction)
 
     def draw(self, scr):
         for point in self.points:
