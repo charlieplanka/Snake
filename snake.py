@@ -1,5 +1,5 @@
 import curses
-from utils import move_point, draw_char
+from utils import draw_char
 
 
 class Snake:
@@ -12,8 +12,21 @@ class Snake:
             self.points[i] = prev_point
 
         head_point = self.points[0]
-        self.points[0] = move_point(direction, head_point)
+        self.points[0] = head_point.move(direction)
 
     def draw(self, scr):
         for point in self.points:
             draw_char(scr, point.x, point.y, "*", curses.color_pair(2))
+
+    def check_border_collision(self, width, height):
+        head = self.points[0]
+        if head.x in (0, width-1) or \
+           head.y in (0, height-1):
+            return True
+        return False
+
+    def check_self_collision(self):
+        head = self.points[0]
+        tail = self.points[1:]
+        return head in tail
+

@@ -6,6 +6,7 @@ from point import Point
 from snake import Snake
 from utils import draw_char
 from direction import Direction
+from mushroom import create_random_mushroom_on_screen
 
 
 WIN_SNAKE_DATA = [
@@ -65,25 +66,6 @@ def draw_str(scr, x, y, s, style=curses.A_NORMAL):
     scr.addstr(y, x, s, style)
 
 
-# def draw_snake(scr, snake_parts):
-#     for i in range(0, len(snake_parts)):
-#         x = snake_parts[i].x
-#         y = snake_parts[i].y
-#         draw_char(scr, x, y, "*", curses.color_pair(2))
-
-
-def create_mushroom(scr):
-    height, width = scr.getmaxyx()
-    x = random.randint(1, width-2)
-    y = random.randint(1, height-2)
-    mushroom = Point(x, y)
-    return mushroom
-
-
-def draw_mushroom(scr, x, y):
-    draw_char(scr, x, y, "T", curses.color_pair(1))
-
-
 def check_if_direction_is_allowed(action, direction):
     if action == ACTION_MOVE_DOWN and direction == Direction.UP:
         return False
@@ -95,15 +77,6 @@ def check_if_direction_is_allowed(action, direction):
         return False
     else:
         return True
-
-
-# def move_snake(direction, snake_parts):
-#     for i in range(len(snake_parts)-1, 0, -1):
-#         prev_point = snake_parts[i-1]
-#         snake_parts[i] = prev_point
-
-#     head_point = snake_parts[0]
-#     snake_parts[0] = move_point(direction, head_point)
 
 
 def get_action_from_key(key):
@@ -145,8 +118,8 @@ def get_action(scr):
 
 def draw_border(scr):
     y, x = scr.getmaxyx()
-    scr.hline(0, 0, "#", x-1, curses.color_pair(3)) 
-    scr.hline(y-1, 0, "#", x, curses.color_pair(3)) 
+    scr.hline(0, 0, "#", x-1, curses.color_pair(3))
+    scr.hline(y-1, 0, "#", x, curses.color_pair(3))
     scr.vline(0, 0, "#", y-1, curses.color_pair(3))
     scr.vline(0, x-1, "#", y-1, curses.color_pair(3))
 
@@ -156,7 +129,7 @@ def game_over(scr):
     scr.clear()
     draw_border(scr)
 
-    height, width = scr.getmaxyx() 
+    height, width = scr.getmaxyx()
     x, y = width//2, height//2
 
     draw_str(scr, x-8, y-5, "G A M E  O V E R", curses.color_pair(1))
@@ -181,7 +154,7 @@ def win_screen(scr):
     scr.clear()
     draw_border(scr)
 
-    height, width = scr.getmaxyx() 
+    height, width = scr.getmaxyx()
     x, y = width//2, height//2
     draw_str(scr, x-17, y-6, "OH BOY, YOU'VE GOT A HUGE ANACONDA!", curses.color_pair(4))
     draw_str(scr, x-15, y-4, "C O N G R A T U L A T I O N S !", curses.color_pair(4))
@@ -213,7 +186,7 @@ def hello_screen(scr):
     scr.keypad(True)
 
     scr.clear()
-  
+
     draw_border(scr)
     scr.refresh()
     time.sleep(0.5)
@@ -251,9 +224,10 @@ def game_loop(stdscr):
     snake.draw(stdscr)
     draw_border(stdscr)
 
-    mushroom = create_mushroom(stdscr)
-    draw_mushroom(stdscr, mushroom.x, mushroom.y)
     direction = Direction.RIGHT
+    mushroom = create_random_mushroom_on_screen(stdscr)
+    mushroom.draw(stdscr)
+
     mushroom_eaten = 0
 
     # узнать, почему 3
@@ -270,7 +244,7 @@ def game_loop(stdscr):
         elif action == ACTION_EXIT:
             return "EXIT"
         elif action == ACTION_CRASH:
-            head_point = snake.points[0]       
+            head_point = snake.points[0]
             draw_str(stdscr, head_point.x, head_point.y, 'BAD BOY!')
             stdscr.refresh()
             time.sleep(0.3)
@@ -278,30 +252,25 @@ def game_loop(stdscr):
             raise("Incorrect action: {}!".format(action))
 
         snake_head = snake.points[0]
-        if snake_head == mushroom:
+        if snake_head == mushroom.point:
             mushroom_eaten += 1
             if mushroom_eaten == MUSHROOMS_TO_WIN:
                 return "WIN"
-            mushroom = create_mushroom(stdscr)
+            mushroom = create_random_mushroom_on_screen(stdscr)
             last_index = len(snake.points)-1
 
             snake.points.append(snake.points[last_index])
 
-        head_x = snake.points[0].x
-        head_y = snake.points[0].y
-        if head_x == width or \
-           head_x == 0 or \
-           head_y == height or \
-           head_y == 0:
+        if snake.check_border_collision(width, height):
             return "LOSS"
 
-        if snake.points[0] in snake.points[1:]:
+        if snake.check_self_collision():
             return "LOSS"
 
-        stdscr.clear() 
+        stdscr.clear()
         draw_border(stdscr)
         snake.draw(stdscr)
-        draw_mushroom(stdscr, mushroom.x, mushroom.y)
+        mushroom.draw(stdscr)
 
 
 def main(stdscr):
