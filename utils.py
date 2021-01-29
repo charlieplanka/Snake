@@ -1,17 +1,17 @@
 import curses
 from point import Point
-from directions import *
+from direction import Direction
 
 
 def move_point(direction, point):
     new_point = Point(point.x, point.y)
-    if direction == DIRECTION_UP:
+    if direction == Direction.UP:
         new_point.y -= 1
-    elif direction == DIRECTION_DOWN:
+    elif direction == Direction.DOWN:
         new_point.y += 1
-    elif direction == DIRECTION_RIGHT:
+    elif direction == Direction.RIGHT:
         new_point.x += 1
-    elif direction == DIRECTION_LEFT:
+    elif direction == Direction.LEFT:
         new_point.x -= 1
     return new_point
 

@@ -5,7 +5,7 @@ import random
 from point import Point
 from snake import Snake
 from utils import draw_char
-from directions import *
+from direction import Direction
 
 
 WIN_SNAKE_DATA = [
@@ -85,13 +85,13 @@ def draw_mushroom(scr, x, y):
 
 
 def check_if_direction_is_allowed(action, direction):
-    if action == ACTION_MOVE_DOWN and direction == DIRECTION_UP:
+    if action == ACTION_MOVE_DOWN and direction == Direction.UP:
         return False
-    elif action == ACTION_MOVE_UP and direction == DIRECTION_DOWN:
+    elif action == ACTION_MOVE_UP and direction == Direction.DOWN:
         return False
-    elif action == ACTION_MOVE_LEFT and direction == DIRECTION_RIGHT:
+    elif action == ACTION_MOVE_LEFT and direction == Direction.RIGHT:
         return False
-    elif action == ACTION_MOVE_RIGHT and direction == DIRECTION_LEFT:
+    elif action == ACTION_MOVE_RIGHT and direction == Direction.LEFT:
         return False
     else:
         return True
@@ -123,13 +123,13 @@ def get_action_from_key(key):
 
 def get_direction_from_action(action):
     if action == ACTION_MOVE_UP:
-        return DIRECTION_UP
+        return Direction.UP
     elif action == ACTION_MOVE_DOWN:
-        return DIRECTION_DOWN
+        return Direction.DOWN
     elif action == ACTION_MOVE_RIGHT:
-        return DIRECTION_RIGHT
+        return Direction.RIGHT
     elif action == ACTION_MOVE_LEFT:
-        return DIRECTION_LEFT
+        return Direction.LEFT
     else:
         raise Exception(f"Unknown action: {action}")
 
@@ -253,7 +253,7 @@ def game_loop(stdscr):
 
     mushroom = create_mushroom(stdscr)
     draw_mushroom(stdscr, mushroom.x, mushroom.y)
-    direction = DIRECTION_RIGHT
+    direction = Direction.RIGHT
     mushroom_eaten = 0
 
     # узнать, почему 3
@@ -337,5 +337,4 @@ def main(stdscr):
 curses.wrapper(main)
 print("Серёжа и Настя котики!")
 
-# класс Змея, который издаёт звук "Ахщщщ!" (вместо BAD_BOY) и состоит из объектов класса Точка
 # написать тесты
