@@ -51,10 +51,6 @@ LOSS_SNAKE_DATA = [
 
 MUSHROOMS_TO_WIN = 2
 
-# добавить перечисление (класс Enum)
-
-MOVES_ACTIONS = [Action.MOVE_UP, Action.MOVE_DOWN, Action.MOVE_RIGHT, Action.MOVE_LEFT]
-
 
 def draw_str(scr, x, y, s, style=curses.A_NORMAL):
     scr.addstr(y, x, s, style)
@@ -231,7 +227,8 @@ def game_loop(stdscr):
         action = get_action(stdscr)
         if action == Action.NONE:
             snake.move(direction)
-        elif action in MOVES_ACTIONS:
+        # elif Action.is_move(action):
+        elif action.is_move_my():
             if check_if_direction_is_allowed(action, direction):
                 direction = get_direction_from_action(action)
                 snake.move(direction)
