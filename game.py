@@ -6,8 +6,10 @@ from point import Point
 from snake import Snake
 from utils import draw_char
 from direction import Direction
+from action import Action
 from mushroom import create_random_mushroom_on_screen
 
+# ввести объект Стены
 
 WIN_SNAKE_DATA = [
     "                 .-'`     '.                        ",
@@ -51,15 +53,7 @@ MUSHROOMS_TO_WIN = 2
 
 # добавить перечисление (класс Enum)
 
-ACTION_MOVE_UP = "MOVE_UP"
-ACTION_MOVE_DOWN = "MOVE_DOWN"
-ACTION_MOVE_RIGHT = "MOVE_RIGHT"
-ACTION_MOVE_LEFT = "MOVE_LEFT"
-ACTION_NONE = "NONE"
-ACTION_CRASH = "CRASH"
-ACTION_EXIT = "EXIT"
-
-MOVES_ACTIONS = [ACTION_MOVE_UP, ACTION_MOVE_DOWN, ACTION_MOVE_RIGHT, ACTION_MOVE_LEFT]
+MOVES_ACTIONS = [Action.MOVE_UP, Action.MOVE_DOWN, Action.MOVE_RIGHT, Action.MOVE_LEFT]
 
 
 def draw_str(scr, x, y, s, style=curses.A_NORMAL):
@@ -67,13 +61,13 @@ def draw_str(scr, x, y, s, style=curses.A_NORMAL):
 
 
 def check_if_direction_is_allowed(action, direction):
-    if action == ACTION_MOVE_DOWN and direction == Direction.UP:
+    if action == Action.MOVE_DOWN and direction == Direction.UP:
         return False
-    elif action == ACTION_MOVE_UP and direction == Direction.DOWN:
+    elif action == Action.MOVE_UP and direction == Direction.DOWN:
         return False
-    elif action == ACTION_MOVE_LEFT and direction == Direction.RIGHT:
+    elif action == Action.MOVE_LEFT and direction == Direction.RIGHT:
         return False
-    elif action == ACTION_MOVE_RIGHT and direction == Direction.LEFT:
+    elif action == Action.MOVE_RIGHT and direction == Direction.LEFT:
         return False
     else:
         return True
@@ -81,27 +75,27 @@ def check_if_direction_is_allowed(action, direction):
 
 def get_action_from_key(key):
     if key in ["KEY_UP", "KEY_A2"]:
-        return ACTION_MOVE_UP
+        return Action.MOVE_UP
     elif key in ["KEY_DOWN", "KEY_C2"]:
-        return ACTION_MOVE_DOWN
+        return Action.MOVE_DOWN
     elif key in ["KEY_RIGHT", "KEY_B3"]:
-        return ACTION_MOVE_RIGHT
+        return Action.MOVE_RIGHT
     elif key in ["KEY_LEFT", "KEY_B1"]:
-        return ACTION_MOVE_LEFT
+        return Action.MOVE_LEFT
     elif key == "q":
-        return ACTION_EXIT
+        return Action.EXIT
     else:
-        return ACTION_CRASH
+        return Action.CRASH
 
 
 def get_direction_from_action(action):
-    if action == ACTION_MOVE_UP:
+    if action == Action.MOVE_UP:
         return Direction.UP
-    elif action == ACTION_MOVE_DOWN:
+    elif action == Action.MOVE_DOWN:
         return Direction.DOWN
-    elif action == ACTION_MOVE_RIGHT:
+    elif action == Action.MOVE_RIGHT:
         return Direction.RIGHT
-    elif action == ACTION_MOVE_LEFT:
+    elif action == Action.MOVE_LEFT:
         return Direction.LEFT
     else:
         raise Exception(f"Unknown action: {action}")
@@ -111,7 +105,7 @@ def get_action(scr):
     try:
         key = scr.getkey()
     except:
-        return ACTION_NONE
+        return Action.NONE
 
     return get_action_from_key(key)
 
@@ -235,15 +229,15 @@ def game_loop(stdscr):
 
     while True:
         action = get_action(stdscr)
-        if action == ACTION_NONE:
+        if action == Action.NONE:
             snake.move(direction)
         elif action in MOVES_ACTIONS:
             if check_if_direction_is_allowed(action, direction):
                 direction = get_direction_from_action(action)
                 snake.move(direction)
-        elif action == ACTION_EXIT:
+        elif action == Action.EXIT:
             return "EXIT"
-        elif action == ACTION_CRASH:
+        elif action == Action.CRASH:
             head_point = snake.points[0]
             draw_str(stdscr, head_point.x, head_point.y, 'BAD BOY!')
             stdscr.refresh()
